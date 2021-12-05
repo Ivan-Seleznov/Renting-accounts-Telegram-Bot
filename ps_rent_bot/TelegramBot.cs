@@ -48,11 +48,26 @@ namespace ps_rent_bot
                     default:
                         try { client.SendTextMessageAsync(message.Chat.Id, BotDescription); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
                         break;
+                    case "Генерал":
+                        client.SendTextMessageAsync(message.Chat.Id, "Какой?");
+                        WaitingForInput = true;
+
+                        break;
                 }
             }
             else
             {
-                WaitingForInput = true;
+                if (message.Text == "Анал" || message.Text == "анал")
+                {
+                    client.SendTextMessageAsync(message.Chat.Id, "Правильно");
+
+                }
+                else
+                {
+                    client.SendTextMessageAsync(message.Chat.Id, "Такого генерала не существует");
+
+                }
+                WaitingForInput = false;
             }
         }
 
