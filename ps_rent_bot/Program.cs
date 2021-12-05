@@ -11,11 +11,9 @@ namespace ps_rent_bot
         static void Main()
         {
             Console.WriteLine("ps_rent_bot\n 5057979799:AAFXniv23yLZq-orze4eyQqCidhC9I9TtHY");
-            
+            Console.WriteLine();
+            TelegramBot telegramBot = new TelegramBot(@"BotInfo\tocken.txt", @"BotInfo\description.txt");
         }
-        void StartBot()
-        {
-            
-        }
+        
     }
 }
