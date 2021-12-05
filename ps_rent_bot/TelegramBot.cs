@@ -23,6 +23,7 @@ namespace ps_rent_bot
         public string BotTocken { get; private set; }
         public string PathToTockenFile { get; set; }
         public string PathToDescriptionFile { get; set; }
+        public bool WaitingForInput { get; set; }
 
         private void StartBot()
         {
@@ -40,9 +41,18 @@ namespace ps_rent_bot
         private void OnMessageHandler(object? sender, MessageEventArgs e)
         {
             var message = e.Message;
-            if (e.Message.Text == "/start")
+            if (!WaitingForInput)
             {
-                try { client.SendTextMessageAsync(message.Chat.Id, BotDescription); } catch(Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                switch (e.Message.Text)
+                {
+                    default:
+                        try { client.SendTextMessageAsync(message.Chat.Id, BotDescription); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                        break;
+                }
+            }
+            else
+            {
+                WaitingForInput = true;
             }
         }
 
