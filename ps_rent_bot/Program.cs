@@ -5,7 +5,6 @@
         //Бот по аренде игр на playstation4 \ ps5
         //ps_rent_bot
         //Tocken: 5057979799:AAFXniv23yLZq-orze4eyQqCidhC9I9TtHY
-
         static void Main()
         {
             Console.WriteLine("ps_rent_bot\n 5057979799:AAFXniv23yLZq-orze4eyQqCidhC9I9TtHY");
