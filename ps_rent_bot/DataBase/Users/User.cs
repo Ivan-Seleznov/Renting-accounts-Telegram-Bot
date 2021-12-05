@@ -17,5 +17,6 @@ namespace ps_rent_bot.DataBase.Users
         public string Name { get; set; }
         public long ChatId { get; set; }
         public userStatus Status{ get; set; }
+        //и list заказов
     }
 }
