@@ -39,12 +39,13 @@ namespace ps_rent_bot
                 if (PathToTockenFile != null)
                 {
                     BotTocken = File.ReadAllText(PathToTockenFile);
+                    Console.WriteLine("Токен инициализирован");
+
                 }
                 else
                 {
                     throw new Exception(message: "В PathToTockenFile null");
                 }
-                Console.WriteLine("Токен инициализирован");
             }
             catch (Exception ex) { Console.WriteLine("Ошибка инициализации токена.\n" + ex.Message); }
             try
@@ -52,12 +53,13 @@ namespace ps_rent_bot
                 if (PathToDescriptionFile != null)
                 {
                     BotDescription = File.ReadAllText(PathToDescriptionFile);
+                    Console.WriteLine("Описание инициализировано");
+
                 }
                 else
                 {
                     throw new Exception(message: "В PathToDescriptionFile null");
                 }
-                Console.WriteLine("Токен инициализирован");
             }
             catch (Exception ex) { Console.WriteLine("Ошибка инициализации описания бота.\n" + ex.Message); }
         }
