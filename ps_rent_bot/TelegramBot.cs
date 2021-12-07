@@ -12,34 +12,51 @@ namespace ps_rent_bot
     class TelegramBot
     {
         public TelegramBotClient client { get; set; }
-        public TelegramBot(string PathToTockenFile, string PathToDescriptionFile, bool log)
+        public TelegramBot(string PathToTockenFile, string PathToDescriptionFile, string PathToHelloMessage , bool LoggingInConsole = false)
         {
-            this.LoggingInConsole = log;
+            this.LoggingInConsole = LoggingInConsole;
             this.PathToDescriptionFile = PathToDescriptionFile;
             this.PathToTockenFile = PathToTockenFile;
+            this.PathToHelloMessage = PathToHelloMessage;
             StartBot();
         }
-        public string BotName { get; private set; }
-        public string BotUsername { get; private set; }
-        public string BotDescription { get; private set; }
+        public TelegramBot()
+        {
+            
+        }
+        public string BotName { get; set; }
+        public string BotUsername { get; set; }
+        public string BotDescription { get; set; }
         public string BotTocken { get; private set; }
         public string PathToTockenFile { get; set; }
+        public string PathToHelloMessage { get; set; }
         public string PathToDescriptionFile { get; set; }
         private bool WaitingForInput { get; set; }
         public bool LoggingInConsole { get; set; }
-        public string BotStartMessage { get; set; } = "Приветственное сообщение";
+        public string HelloMessage { get; set; } = "Приветственное сообщение";
+        public bool InitializationException{ get; set; }
 
-        private void StartBot()
+        public void StartBot()
         {
-            Inizialize();
-            client = new TelegramBotClient(BotTocken);
-            client.OnMessage += OnMessageHandler;
-            client.StartReceiving();
-            Console.WriteLine($"Бот: {BotName} .\nBot Username: {BotUsername}\n\tЗапущен.");
-            ConsoleComands();
-            client.StopReceiving();
-            Console.WriteLine("Бот остановлен");
-            Console.ReadLine();
+            if (Inizialize())
+            {
+                client = new TelegramBotClient(BotTocken);
+                client.OnMessage += OnMessageHandler;
+                client.StartReceiving();
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                Console.WriteLine($"Бот: {BotName} .\nBot Username: {BotUsername}\n\tзапущен");
+                Console.ForegroundColor = ConsoleColor.White;
+                ConsoleComands();
+                client.StopReceiving();
+                Console.WriteLine("Бот остановлен");
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine("Ошибка. Бот остановлен");
+                Console.ReadLine();
+            }
         }
 
         private void OnMessageHandler(object? sender, MessageEventArgs e)
@@ -56,7 +73,7 @@ namespace ps_rent_bot
                     switch (e.Message.Text)
                     {
                         default:
-                            try { client.SendTextMessageAsync(message.Chat.Id, BotStartMessage,replyMarkup:GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage,replyMarkup:GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
                             break;
                         case "Генерал":
                             client.SendTextMessageAsync(message.Chat.Id, "Какой?", replyMarkup: GetQuestionButtons(message.Chat.Id));
@@ -85,13 +102,12 @@ namespace ps_rent_bot
             }
         }
 
-        private void Inizialize()
+        private bool Inizialize()
         {
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
             int i = 0;
-
             Console.WriteLine("Инициализация...");
-            BotName = "Бот по аренде игр на playstation4 \\ ps5";
-            BotUsername = "ps_rent_bot";
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
             if (i < 1)
             {
                 try
@@ -106,7 +122,14 @@ namespace ps_rent_bot
                         throw new Exception(message: "В PathToTockenFile null");
                     }
                 }
-                catch (Exception ex) { Console.WriteLine("Ошибка инициализации токена.\n" + ex.Message); }
+                catch (Exception ex) 
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Ошибка инициализации токена.\n" + ex.Message);
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return false;
+                    
+                }
             }
             try
             {
@@ -118,11 +141,78 @@ namespace ps_rent_bot
                 }
                 else
                 {
-                    throw new Exception(message: "В PathToDescriptionFile null");
+                    if (InitializationException)
+                    {
+                        throw new Exception(message: "В PathToDescriptionFile null");
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+
+                        Console.WriteLine("В PathToDescriptionFile null. Будет задано значение: none");
+                        BotDescription = "none";
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                    }
                 }
             }
-            catch (Exception ex) { Console.WriteLine("Ошибка инициализации описания бота.\n" + ex.Message); }
-            i++;
+            catch (Exception ex) 
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Ошибка инициализации описания бота.\n" + ex.Message);
+                Console.ForegroundColor = ConsoleColor.White;
+                return false;
+            }
+
+
+
+
+
+            try
+            {
+                if (PathToHelloMessage != null)
+                {
+                    HelloMessage = File.ReadAllText(PathToHelloMessage);
+                    Console.WriteLine("Приветственное сообщение инициализировано");
+
+                }
+                else
+                {
+                    if (InitializationException)
+                    {
+                        throw new Exception(message: "В PathToHelloMessage null");
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+
+                        Console.WriteLine("В PathToHelloMessage null. Будет задано значение: hello_none");
+                        HelloMessage = "hello_none";
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Ошибка инициализации приветственного сообщения.\n" + ex.Message);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                return false;
+            }
+
+
+
+
+
+
+
+
+
+
+            Console.ForegroundColor = ConsoleColor.White;
+            return true;
         }
         private void ConsoleComands()
         {
@@ -139,16 +229,27 @@ namespace ps_rent_bot
                     case "/changeDescriptionFile":
                         Console.Write("Укажите путь к файлу: ");
                         PathToDescriptionFile = Console.ReadLine();
-                        Inizialize();
+                        if (!Inizialize())
+                        {
+                            return;
+                        }                        
                         break;
                     case "/changeDescription":
                         Console.Write("Введите новое описание: ");
                         BotDescription = Console.ReadLine();
                         break;
+                    case "/Inizialize":
+                        Console.WriteLine("");
+                        if (!Inizialize())
+                        {
+                            return;
+                        }
+                        break;
                     case "/help":
                         Console.WriteLine("sendMessage - отправить текстовое сообщение всем пользователям");
                         Console.WriteLine("/changeDescriptionFile -  Изменить путь к файлу где находится описание бота");
                         Console.WriteLine("/changeDescription -  изменить описание бота");
+                        Console.WriteLine("/Inizialize - заново инициализировать значения");
 
                         break;
                     case "exit":
