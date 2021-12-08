@@ -7,7 +7,9 @@ namespace ps_rent_bot
     {
                
         static void Main()
-        {          
+        {
+            //TelegramBot telegramBot = new TelegramBot(@"BotInfo\tocken.txt", @"BotInfo\description.txt", true);
+            
             TelegramBot telegramBot = new TelegramBot();
             telegramBot.PathToTockenFile = @"BotInfo\tocken.txt";
             telegramBot.PathToDescriptionFile = @"BotInfo\description.txt";

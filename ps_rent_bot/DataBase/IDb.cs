@@ -10,7 +10,6 @@ namespace ps_rent_bot.DataBase
     {
         public int Id { get; set; }
         public DateTime DateAdded { get; set; }
-    
 
     }
 }

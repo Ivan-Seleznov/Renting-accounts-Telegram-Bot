@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ps_rent_bot.DataBase.Accounts
 {
-    internal interface IAccount: IDb
+    interface IAccount: IDb
     {
         public string Username { get; set; }
         public string Email { get; set; }

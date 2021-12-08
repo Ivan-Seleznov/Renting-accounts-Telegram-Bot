@@ -13,7 +13,7 @@ namespace ps_rent_bot.DataBase
         {
             Database.EnsureCreated();
         }
-        protected void OnConfiguring(DbContextOptionsBuilder contextOptionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder contextOptionsBuilder)
         {
             contextOptionsBuilder.UseSqlServer("Server=localhost\\SQLExpress;Database=ps_rent_botadb;Trusted_Connection=True;");
         }
