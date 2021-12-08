@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ps_rent_bot.DataBase
 {
-    class AppContext:DbContext
+    class ApplicationContext:DbContext
     {
-        public AppContext()
+        public ApplicationContext()
         {
             Database.EnsureCreated();
         }
@@ -17,5 +17,9 @@ namespace ps_rent_bot.DataBase
         {
             contextOptionsBuilder.UseSqlServer("Server=localhost\\SQLExpress;Database=ps_rent_botadb;Trusted_Connection=True;");
         }
+        public DbSet<Accounts.Playstation.PsAccount> psAccounts { get; set; }
+        public DbSet<Users.User> Users { get; set; }
+        public DbSet<Orders.Order> Orders { get; set; }
+
     }
 }

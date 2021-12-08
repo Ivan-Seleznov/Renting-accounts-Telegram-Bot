@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ps_rent_bot.DataBase.Users
 {
-    class User
+    class User: IDb
     {
         public enum userStatus
         {
@@ -17,6 +17,7 @@ namespace ps_rent_bot.DataBase.Users
         public string Name { get; set; }
         public long ChatId { get; set; }
         public userStatus Status{ get; set; }
+        public DateTime DateAdded { get; set; }
         //и list заказов
     }
 }
