@@ -15,9 +15,11 @@ namespace ps_rent_bot
 {
     class TelegramBot
     {
+        public BotButton button { get; set; }
         public TelegramBotClient client { get; set; }
-        public TelegramBot(string PathToTockenFile, string PathToDescriptionFile, string PathToHelloMessage , bool LoggingInConsole = false)
+        public TelegramBot(string PathToTockenFile, string PathToDescriptionFile, string PathToHelloMessage ,BotButton botButton ,bool LoggingInConsole = false)
         {
+            button = botButton;
             this.LoggingInConsole = LoggingInConsole;
             this.PathToDescriptionFile = PathToDescriptionFile;
             this.PathToTockenFile = PathToTockenFile;
@@ -26,7 +28,6 @@ namespace ps_rent_bot
         }
         public TelegramBot()
         {
-            
         }
         public string BotName { get; set; }
         public string BotUsername { get; set; }
@@ -39,13 +40,15 @@ namespace ps_rent_bot
         public bool LoggingInConsole { get; set; }
         public string HelloMessage { get; set; } = "Приветственное сообщение";
         public bool InitializationException{ get; set; }
-
+        
         public void StartBot()
         {
             if (Inizialize())
             {
+                
                 client = new TelegramBotClient(BotTocken);
                 client.OnMessage += OnMessageHandler;
+                client.OnCallbackQuery += Client_OnCallbackQuery;
                 client.StartReceiving();
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.DarkMagenta;
@@ -60,6 +63,31 @@ namespace ps_rent_bot
             {
                 Console.WriteLine("Ошибка. Бот остановлен");
                 Console.ReadLine();
+            }
+        }
+
+        private void Client_OnCallbackQuery(object? sender, CallbackQueryEventArgs e)
+        {
+            var callback = e.CallbackQuery;
+            if (callback != null)
+            {
+                if (callback.Data != null)
+                {
+                    switch (callback.Data)
+                    {
+                        case "ps5bot":                           
+                            break;
+                        case "chat":
+                            client.AnswerCallbackQueryAsync(callback.Id,"Недоступно");
+                            break;
+                        case "reviews":
+                            client.AnswerCallbackQueryAsync(callback.Id, "Недоступно");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                
             }
         }
 
@@ -78,15 +106,21 @@ namespace ps_rent_bot
                     switch (e.Message.Text)
                     {
                         default:
-                            try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage,replyMarkup:GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage,replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
                             break;
                         case "Генерал":
-                            client.SendTextMessageAsync(message.Chat.Id, "Какой?", replyMarkup: GetQuestionButtons(message.Chat.Id));
+                            client.SendTextMessageAsync(message.Chat.Id, "Какой?", replyMarkup: button.GetQuestionButtons(message.Chat.Id));
                             WaitingForInput = true;
 
                             break;
                         case "О боте":
-                            try { client.SendTextMessageAsync(message.Chat.Id, BotDescription, replyMarkup: GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            try { client.SendTextMessageAsync(message.Chat.Id, BotDescription, replyMarkup: button.GetCallBackButtons());} catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            break;
+                        case "Мои заказы":
+                            try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            break;
+                        case "Арендовать":
+                            try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
                             break;
                     }
                 }
@@ -94,12 +128,12 @@ namespace ps_rent_bot
                 {
                     if (message.Text == "а) Анал" || message.Text == "Анал" || message.Text == "анал")
                     {
-                        client.SendTextMessageAsync(message.Chat.Id, "Правильно", replyMarkup: GetBaseButtons(message.Chat.Id)); ;
+                        client.SendTextMessageAsync(message.Chat.Id, "Правильно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); ;
 
                     }
                     else
                     {
-                        client.SendTextMessageAsync(message.Chat.Id, "Такого генерала не существует. Правильный ответ: Генерал Анал", replyMarkup: GetBaseButtons(message.Chat.Id));
+                        client.SendTextMessageAsync(message.Chat.Id, "Такого генерала не существует. Правильный ответ: Генерал Анал", replyMarkup: button.GetBaseButtons(message.Chat.Id));
 
                     }
                     WaitingForInput = false;
