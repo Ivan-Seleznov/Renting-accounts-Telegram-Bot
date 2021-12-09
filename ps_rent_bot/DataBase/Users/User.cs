@@ -19,5 +19,6 @@ namespace ps_rent_bot.DataBase.Users
         public userStatus Status{ get; set; }
         public DateTime DateAdded { get; set; }
         //и list заказов
+        public List<Orders.Order> Orders { get; set; } //добавил
     }
 }
