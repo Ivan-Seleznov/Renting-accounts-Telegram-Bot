@@ -13,8 +13,9 @@ namespace ps_rent_bot.DataBase.Orders
     class Order : IOrder
     {
         public int Id { get; set; }
-        public PsAccount Account { get  ; set ; }
-        public User User { get ; set ; }
+        public PsAccount Account { get; set; }
+        public User User { get; set; }
+        public int UserId { get; set; }
         public DateTime DateAdded { get ; set ; }
     }
 }

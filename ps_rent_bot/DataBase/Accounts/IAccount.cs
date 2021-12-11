@@ -13,5 +13,8 @@ namespace ps_rent_bot.DataBase.Accounts
         public string Password { get; set; }
         public bool IsRented { get; set; }
 
+        public void Rent(Users.User user);
+        public void GiveAccountInformation();
+
     }
 }
