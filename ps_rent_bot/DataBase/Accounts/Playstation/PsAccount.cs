@@ -21,6 +21,7 @@ namespace ps_rent_bot.DataBase.Accounts.Playstation
         public bool IsRented { get ; set ; }
         public int Id { get ; set ; }
         public DateTime DateAdded { get ; set ; }
+        
 
         public void Rent(User user)
         {
@@ -31,7 +32,7 @@ namespace ps_rent_bot.DataBase.Accounts.Playstation
                     db.SaveChanges();
                 Orders.Order order = new Orders.Order { 
                     Account =db.psAccounts.Find(this.Id),
-                    User =db.Users.Find(user.Id) };
+                    User =db.Users.Find(user.ChatId) };
                 
                 db.Orders.Add(order);
                 db.SaveChanges();

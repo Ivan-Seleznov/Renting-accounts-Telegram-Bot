@@ -120,7 +120,12 @@ namespace ps_rent_bot
                             try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
                             break;
                         case "Арендовать":
+                            //Program.Db.psAccounts.Find(1).Rent(Program.Db.Find(1));
                             try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            break;
+                        case "/start":
+                            try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage, replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            Program.Db.Add(new User { ChatId = message.Chat.Id, Name = message.From.FirstName ?? message.From.Username ?? "Аноним"} );
                             break;
                     }
                 }
