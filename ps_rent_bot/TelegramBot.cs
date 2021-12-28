@@ -125,7 +125,7 @@ namespace ps_rent_bot
                             break;
                         case "/start":
                             try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage, replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
-                            Program.Db.Add(new User { ChatId = message.Chat.Id, Name = message.From.FirstName ?? message.From.Username ?? "Аноним"} );
+                            Program.Db.Add(new User { UserId = message.Chat.Id, Name = message.From.FirstName ?? message.From.Username ?? "Аноним"} );
                             break;
                     }
                 }

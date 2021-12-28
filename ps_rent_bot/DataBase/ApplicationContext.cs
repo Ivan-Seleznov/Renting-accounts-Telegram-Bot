@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using ps_rent_bot.Enums;
 using static ps_rent_bot.DataBase.Users.User;
 
 namespace ps_rent_bot.DataBase
@@ -26,7 +27,7 @@ namespace ps_rent_bot.DataBase
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Users.User>().Property(u => u.Status).HasDefaultValue(userStatus.None);
+            modelBuilder.Entity<Users.User>().Property(u => u.Status).HasDefaultValue(UserStatusEnum.None);
             modelBuilder.Entity<Orders.Order>().Property(u => u.DateAdded).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<Users.User>().Property(u => u.DateAdded).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<Accounts.Playstation.PsAccount>().Property(u => u.DateAdded).HasDefaultValueSql("GETDATE()");
