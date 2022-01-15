@@ -23,17 +23,18 @@ namespace ps_rent_bot.DataBase.Accounts
         public bool? IsPsPlus { protected private get; set; }
         public bool IsRented { get; set; }
         public int Id { get; set; }
+        public DateTime RentedFor;
         public DateTime DateAdded { get; set; }
 
         
-        public bool Rent(User user)
+        public bool Rent(User user, int months)
         {
             if (this != null && this.IsRented != true)
             {
                 try
                 {
-                    Program.Db.psAccounts.Find(this.Id).IsRented = true;
-                    Program.Db.SaveChanges();
+                    Program.Db.Accounts.Find(this.Id).IsRented = true;
+                    Program.Db.Accounts.Find(this.Id).RentedFor = DateTime.Now.AddMonths(months);
                 }
                 catch (Exception exc)
                 {
@@ -44,15 +45,16 @@ namespace ps_rent_bot.DataBase.Accounts
                 {
                     Orders.Order order = new Orders.Order
                     {
-                        Account = Program.Db.psAccounts.Find(this.Id),
+                        Account = Program.Db.Accounts.Find(this.Id),
                         User = Program.Db.Users.Find(user.UserId)
                     };
                     Program.Db.Orders.Add(order);
                     Program.Db.SaveChanges();
+                    
                 }
                 catch (Exception exc)
                 {
-                    Program.Db.psAccounts.Find(this.Id).IsRented = false;
+                    Program.Db.Accounts.Find(this.Id).IsRented = false;
                     Console.Error.WriteLine("Ошибка сохранение заказа. " + this.Id + "Стастус аккаунта откачен" + exc.ToString());
                     Console.WriteLine("Ошибка сохранение заказа. " + this.Id + "Стастус аккаунта откачен");
                     return false;
