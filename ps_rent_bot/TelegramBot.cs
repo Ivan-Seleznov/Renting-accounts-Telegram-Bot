@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.ReplyMarkups;
-using ps_rent_bot.DataBase;
-using ps_rent_bot.DataBase.Orders;
 using ps_rent_bot.DataBase.Users;
-using ps_rent_bot.DataBase.Accounts.Playstation;
 
 namespace ps_rent_bot
 {
     class TelegramBot
     {
+
+        enum SendMessageResult
+        {
+            Exxeption = 0,
+            Seccesfull = 1,
+            DeletedUser = 2
+        }
         public BotButton button { get; set; }
-        public TelegramBotClient client { get; set; }
-        public TelegramBot(string PathToTockenFile, string PathToDescriptionFile, string PathToHelloMessage ,BotButton botButton ,bool LoggingInConsole = false)
+        private TelegramBotClient client { get; set; }
+        public TelegramBot(string PathToTockenFile, string PathToDescriptionFile, string PathToHelloMessage, BotButton botButton, bool LoggingInConsole = false)
         {
             button = botButton;
             this.LoggingInConsole = LoggingInConsole;
@@ -39,13 +38,13 @@ namespace ps_rent_bot
         private bool WaitingForInput { get; set; }
         public bool LoggingInConsole { get; set; }
         public string HelloMessage { get; set; } = "Приветственное сообщение";
-        public bool InitializationException{ get; set; }
-        
+        public bool InitializationException { get; set; }
+
         public void StartBot()
         {
             if (Inizialize())
             {
-                
+
                 client = new TelegramBotClient(BotTocken);
                 client.OnMessage += OnMessageHandler;
                 client.OnCallbackQuery += Client_OnCallbackQuery;
@@ -75,10 +74,10 @@ namespace ps_rent_bot
                 {
                     switch (callback.Data)
                     {
-                        case "ps5bot":                           
+                        case "ps5bot":
                             break;
                         case "chat":
-                            client.AnswerCallbackQueryAsync(callback.Id,"Недоступно");
+                            client.AnswerCallbackQueryAsync(callback.Id, "Недоступно");
                             break;
                         case "reviews":
                             client.AnswerCallbackQueryAsync(callback.Id, "Недоступно");
@@ -87,13 +86,13 @@ namespace ps_rent_bot
                             break;
                     }
                 }
-                
+
             }
         }
-
+        
         private void OnMessageHandler(object? sender, MessageEventArgs e)
         {
-            
+
             var message = e.Message;
             if (message != null)
             {
@@ -106,39 +105,51 @@ namespace ps_rent_bot
                     switch (e.Message.Text)
                     {
                         default:
-                            try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage,replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            SendMessageToId(HelloMessage, message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id));
+
                             break;
                         case "Генерал":
-                            client.SendTextMessageAsync(message.Chat.Id, "Какой?", replyMarkup: button.GetQuestionButtons(message.Chat.Id));
+                            //client.SendTextMessageAsync(message.Chat.Id, "Какой?", replyMarkup: button.GetQuestionButtons(message.Chat.Id));
+                            SendMessageToId("Какой",message.Chat.Id,replyMarkup: button.GetQuestionButtons(message.Chat.Id));
                             WaitingForInput = true;
 
                             break;
                         case "О боте":
-                            try { client.SendTextMessageAsync(message.Chat.Id, BotDescription, replyMarkup: button.GetCallBackButtons());} catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            //try { client.SendTextMessageAsync(message.Chat.Id, BotDescription, replyMarkup: button.GetCallBackButtons()); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            SendMessageToId(BotDescription, message.Chat.Id, replyMarkup: button.GetCallBackButtons());
                             break;
                         case "Мои заказы":
-                            try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            //try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            SendMessageToId("Недоступно", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id), AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним");
                             break;
                         case "Арендовать":
                             //Program.Db.psAccounts.Find(1).Rent(Program.Db.Find(1));
-                            try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            //try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            SendMessageToId("Недоступно", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id), AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним");
+
                             break;
                         case "/start":
-                            try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage, replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
-                            Program.Db.Add(new User { UserId = message.Chat.Id, Name = message.From.FirstName ?? message.From.Username ?? "Аноним"} );
+                            SendMessageToId(HelloMessage, message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id) ,AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним");
+
+                            //try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage, replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
+                            //Program.Db.Add(new User { UserId = message.Chat.Id, Name = message.From.FirstName ?? message.From.Username ?? "Аноним" });
+                            //Program.Db.SaveChanges();
                             break;
                     }
                 }
+                
                 else
                 {
                     if (message.Text == "а) Анал" || message.Text == "Анал" || message.Text == "анал")
                     {
-                        client.SendTextMessageAsync(message.Chat.Id, "Правильно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); ;
+                        SendMessageToId("Правильно", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id));
 
                     }
                     else
                     {
-                        client.SendTextMessageAsync(message.Chat.Id, "Такого генерала не существует. Правильный ответ: Генерал Анал", replyMarkup: button.GetBaseButtons(message.Chat.Id));
+                        SendMessageToId("Такого генерала не существует. Правильный ответ: Генерал Анал", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id));
+
+                        //client.SendTextMessageAsync(message.Chat.Id, "Такого генерала не существует. Правильный ответ: Генерал Анал", replyMarkup: button.GetBaseButtons(message.Chat.Id));
 
                     }
                     WaitingForInput = false;
@@ -166,13 +177,13 @@ namespace ps_rent_bot
                         throw new Exception(message: "В PathToTockenFile null");
                     }
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Ошибка инициализации токена.\n" + ex.Message);
-                    Console.ForegroundColor = ConsoleColor.White;
-                    return false;
+                   
+                    LogInConsole.PrintException("Ошибка инициализации токена.\n" + ex.Message);
                     
+                    return false;
+
                 }
             }
             try
@@ -200,7 +211,7 @@ namespace ps_rent_bot
                     }
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Ошибка инициализации описания бота.\n" + ex.Message);
@@ -230,7 +241,7 @@ namespace ps_rent_bot
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
 
-                        Console.WriteLine("В PathToHelloMessage null. Будет задано значение: hello_none");
+                        LogInConsole.PrintException("В PathToHelloMessage null. Будет задано значение: hello_none");
                         HelloMessage = "hello_none";
                         Console.ForegroundColor = ConsoleColor.White;
 
@@ -239,10 +250,7 @@ namespace ps_rent_bot
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Ошибка инициализации приветственного сообщения.\n" + ex.Message);
-                Console.ForegroundColor = ConsoleColor.White;
-
+                LogInConsole.PrintException("Ошибка инициализации приветственного сообщения.\n");
                 return false;
             }
 
@@ -265,10 +273,62 @@ namespace ps_rent_bot
                 string command = Console.ReadLine();
                 switch (command)
                 {
-                    case "/sendMessage":
+                    case "/sendMessageAll":
                         Console.Write("Введите текстовое сообщение: ");
                         string text = Console.ReadLine();
-                        SendMessage(text);
+                        SendMessageToAll(text);
+                        break;
+                    case "/sendMessageTo":
+                        bool result = false;
+                        Console.Write("Укажите chatId пользователя либо его Firstname либо Username: ");
+                        string userIdent = Console.ReadLine();
+                        long chatid = 0;
+                        if (long.TryParse(userIdent,out chatid))
+                        {
+                            var user = Program.Db.Users.Find(chatid);
+                            if (user == null)
+                            {
+                                Console.WriteLine("Пользователь не найден");
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Пользователь " + user.UserId + " найден. Отправка сообщения");
+                                if (user.Name != null)
+                                {
+                                    Console.WriteLine("Имя пользователя: " + user.Name);
+                                }
+                                Console.WriteLine("Введите сообщение: ");
+                                string message = Console.ReadLine();
+                                SendMessageToId(message,user.UserId);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            
+                            foreach (var u in Program.Db.Users)
+                            {
+                                if (u.Name == userIdent)
+                                {
+                                    Console.WriteLine("Пользователь " + u.UserId + " найден. Отправка сообщения");
+                                    if (u.Name != null)
+                                    {
+                                        Console.WriteLine("Имя пользователя: " + u.Name);
+                                    }
+                                    Console.WriteLine("Введите сообщение: ");
+                                    string message = Console.ReadLine();
+                                    SendMessageToId(message, u.UserId);
+                                    result = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!result)
+                        {
+                            Console.WriteLine("Пользователь не найден. Сообщения не будут отправлены");
+
+                        }
                         break;
                     case "/changeDescriptionFile":
                         Console.Write("Укажите путь к файлу: ");
@@ -276,7 +336,7 @@ namespace ps_rent_bot
                         if (!Inizialize())
                         {
                             return;
-                        }                        
+                        }
                         break;
                     case "/changeDescription":
                         Console.Write("Введите новое описание: ");
@@ -305,74 +365,72 @@ namespace ps_rent_bot
                 }
             }
         }
-        public void SendMessage(string message)
+        public async Task<bool> SendMessageToId(string message,long chatId,string photoUrl = null,bool AddToDb = false, string UserName = null, IReplyMarkup replyMarkup = null)
         {
-
-        }
-        private IReplyMarkup GetBaseButtons(long chatId)
-        {
-            //if (!Admin.Contains(chatId))
-            //{
-            return new ReplyKeyboardMarkup
+            try
             {
-                Keyboard = new List<List<KeyboardButton>>()
-                    {
-                    new List<KeyboardButton>
-                    {
-                        new KeyboardButton()
-                        {
-                            Text = "О боте"
-                        },
-   
-                    },
-                    new List<KeyboardButton>
-                    {
-                        new KeyboardButton()
-                        {
-                            Text = "Генерал"
-                        },
-                        
-                    },
+                if (photoUrl == null)
+                {
+                    await client.SendTextMessageAsync(chatId, message,replyMarkup: replyMarkup);
                 }
-            };
-
-            //}
-        }
-        private IReplyMarkup GetQuestionButtons(long chatId)
-        {
-           
-            return new ReplyKeyboardMarkup
+                else
+                {
+                    await client.SendPhotoAsync(photo: photoUrl, chatId: chatId, caption: message, replyMarkup: replyMarkup);
+                }
+                if (AddToDb && UserName != null)
+                {
+                    if (Program.Db.Users.Find(chatId) == null)
+                    {
+                        Program.Db.Users.Add(new User { Name = UserName, UserId = chatId });
+                        Console.WriteLine("Добавлен новый пользователь");
+                        Program.Db.SaveChanges();
+                    }
+                    else { Console.WriteLine("Пользователь существует"); }
+                }
+                return true;
+            }
+            catch (Telegram.Bot.Exceptions.ApiRequestException) 
             {
-                Keyboard = new List<List<KeyboardButton>>()
-                    {
-                    new List<KeyboardButton>
-                    {
-                        new KeyboardButton()
-                        {
-                            Text = "а) Анал"
-                        },
-
-                    },
-                    new List<KeyboardButton>
-                    {
-                        new KeyboardButton()
-                        {
-                            Text = "б) Седой Генерал"
-                        },
-
-                    },
-                     new List<KeyboardButton>
-                    {
-                        new KeyboardButton()
-                        {
-                            Text = "в) Кал"
-                        },
-
-                    },
-                }
-            };
-
-            
+                RemoveUser(chatId);
+                return false;
+            }
+            catch (Exception ex) 
+            {
+                LogInConsole.PrintException("Ошибка отправки сообщения: " + ex.Message);
+                return false;
+            }
         }
+        void SendMessageToAll(string message,string photoUrl = null)
+        {
+            try
+            {
+                foreach (var user in Program.Db.Users)
+                {
+                    SendMessageToId(message, user.UserId, photoUrl);
+                }
+            }
+            catch(Exception ex)
+            {
+                LogInConsole.PrintException("Ошибка получения данных из бд для отправки сообщений: " + ex.Message);
+            }
+        }
+        void RemoveUser(long chatId)
+        {
+            try
+            {
+                Program.Db.Remove( Program.Db.Users.Find(chatId));
+                Program.Db.SaveChanges();
+                Console.WriteLine("Пользователь удалён " + chatId);
+            }
+            catch (Exception ex)
+            {
+                LogInConsole.PrintException($"Ошибка удаления пользователя {chatId}. {ex.Message}" );
+
+            }
+        }
+
+
+
     }
 }
+
