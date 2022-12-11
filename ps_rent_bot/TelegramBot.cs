@@ -195,15 +195,7 @@ namespace ps_rent_bot
                     }
                     else
                     {
-                        if (message.Text == "Анал")
-                        {
-                            SendMessageToId("Правильно. Скидка на все товары - 5%", message.Chat.Id);
-                        }
-                        else
-                        {
-                            SendMessageToId("Не правильно", message.Chat.Id);
-                        }
-                        WaitingForInput=false;
+    
                     }
                 }
                 else
@@ -321,14 +313,6 @@ namespace ps_rent_bot
             }
 
 
-
-
-
-
-
-
-
-
             Console.ForegroundColor = ConsoleColor.White;
             return true;
         }
@@ -439,7 +423,7 @@ namespace ps_rent_bot
                         Console.WriteLine("sendMessage - отправить текстовое сообщение всем пользователям");
                         Console.WriteLine("/changeDescriptionFile -  Изменить путь к файлу где находится описание бота");
                         Console.WriteLine("/changeDescription -  изменить описание бота");
-                        Console.WriteLine("/inizialize - заново инициализировать значения");
+                        Console.WriteLine("/init - заново инициализировать значения");
                         Console.WriteLine("/chAc - сменить статус аккаунта на IsRented = False");
                        
 
