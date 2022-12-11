@@ -42,7 +42,7 @@ namespace ps_rent_bot
 
         public void StartBot()
         {
-            if (Inizialize())
+            if (Initialize())
             {
 
                 client = new TelegramBotClient(BotTocken);
@@ -208,7 +208,7 @@ namespace ps_rent_bot
                 }
                 else
                 {
-                    SendMessageToId("Ты мне какую-то дич отправил. Отправь название игры", message.Chat.Id);
+                    SendMessageToId("Введите название игры.", message.Chat.Id);
                 }
 
 
@@ -223,7 +223,7 @@ namespace ps_rent_bot
     }
 
        
-        private bool Inizialize()
+        private bool Initialize()
         {
             Console.ForegroundColor = ConsoleColor.DarkBlue;
             int i = 0;
@@ -399,7 +399,7 @@ namespace ps_rent_bot
                     case "/changeDescriptionFile":
                         Console.Write("Укажите путь к файлу: ");
                         PathToDescriptionFile = Console.ReadLine();
-                        if (!Inizialize())
+                        if (!Initialize())
                         {
                             return;
                         }
@@ -408,9 +408,9 @@ namespace ps_rent_bot
                         Console.Write("Введите новое описание: ");
                         BotDescription = Console.ReadLine();
                         break;
-                    case "/inizialize":
+                    case "/init":
                         Console.WriteLine("");
-                        if (!Inizialize())
+                        if (!Initialize())
                         {
                             return;
                         }
