@@ -12,7 +12,7 @@ namespace ps_rent_bot
         public static ApplicationContext Db { get; set; }
         static void Main()
         {
-
+            //another example of use class TelegramBot
             //TelegramBot telegramBot = new TelegramBot(@"BotInfo\tocken.txt", @"BotInfo\description.txt", true);
             using (Db = new ApplicationContext())
             {
