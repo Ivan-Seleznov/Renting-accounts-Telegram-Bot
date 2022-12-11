@@ -9,7 +9,7 @@ namespace ps_rent_bot
 {
     class BotButton
     {
-        
+
         public IReplyMarkup GetBaseButtons(long chatId)
         {
             return new ReplyKeyboardMarkup
@@ -20,10 +20,6 @@ namespace ps_rent_bot
                     {
                         new KeyboardButton()
                         {
-                            Text = "Арендовать"
-                        },
-                        new KeyboardButton()
-                        {
                             Text = "Мои заказы"
                         },
                     },
@@ -32,44 +28,53 @@ namespace ps_rent_bot
                         new KeyboardButton()
                         {
                             Text = "О боте"
-                        },                    
+                        },
                     },
                 }
             };
         }
-        public IReplyMarkup GetQuestionButtons(long chatId)
+        
+        public InlineKeyboardMarkup GetCallBackRentButtons(int accountId)
         {
-
-            return new ReplyKeyboardMarkup
+            return new InlineKeyboardMarkup(inlineKeyboard: new List<List<InlineKeyboardButton>>()
             {
-                Keyboard = new List<List<KeyboardButton>>()
+                new List<InlineKeyboardButton>
+                {
+                    new InlineKeyboardButton()
                     {
-                    new List<KeyboardButton>
+                        Text = "7 дней",
+                        CallbackData = "7days" + accountId.ToString()
+                    },
+                    new InlineKeyboardButton()
                     {
-                        new KeyboardButton()
-                        {
-                            Text = "а) Анал"
-                        },
+                        Text = "14 дней",
+                        CallbackData = "14days" + accountId.ToString()
 
                     },
-                    new List<KeyboardButton>
+                    new InlineKeyboardButton()
                     {
-                        new KeyboardButton()
-                        {
-                            Text = "б) Седой Генерал"
-                        },
+                        Text = "21 день",
+                        CallbackData = "21days" + accountId.ToString()
+                    }
+
+                },
+                new List<InlineKeyboardButton>
+                {
+                    new InlineKeyboardButton()
+                    {
+                        Text = "30 дней",
+                        CallbackData = "30days" + accountId.ToString()
+                    },
+                    new InlineKeyboardButton()
+                    {
+                        Text = "60 дней",
+                        CallbackData = "60days" + accountId.ToString()
 
                     },
-                     new List<KeyboardButton>
-                    {
-                        new KeyboardButton()
-                        {
-                            Text = "в) Кал"
-                        },
+                },
 
-                    },
-                }
-            };           
+            });
+
         }
         public InlineKeyboardMarkup GetCallBackButtons()
         {
@@ -112,8 +117,9 @@ namespace ps_rent_bot
 
                     },
 
-                }) ;
-           
+                });
+
         }
     }
 }
+

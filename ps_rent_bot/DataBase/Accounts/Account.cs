@@ -9,7 +9,7 @@ using ps_rent_bot.Enums;
 
 namespace ps_rent_bot.DataBase.Accounts
 {
-    internal class Account
+    public class Account
     {
 
         [Required]
@@ -25,8 +25,8 @@ namespace ps_rent_bot.DataBase.Accounts
         public int Id { get; set; }
         public DateTime RentedFor;
         public DateTime DateAdded { get; set; }
+        public string Games { get; set; }
 
-        
         public bool Rent(User user, int months)
         {
             if (this != null && this.IsRented != true)
@@ -69,5 +69,6 @@ namespace ps_rent_bot.DataBase.Accounts
             string msg = "Имя: " + this.Username + "\nПароль: " + this.Password;
             Console.WriteLine(msg);
         }
+        
     }
 }

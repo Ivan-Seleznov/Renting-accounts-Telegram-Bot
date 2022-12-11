@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ps_rent_bot.Enums
 {
-    enum UserStatusEnum
+    public enum UserStatusEnum
     {
         None,
         Premium_Standart

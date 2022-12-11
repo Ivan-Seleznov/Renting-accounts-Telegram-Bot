@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ps_rent_bot.DataBase;
+using ps_rent_bot.DataBase.Accounts;
 using ps_rent_bot.DataBase.Accounts.Playstation;
 using ps_rent_bot.DataBase.Orders;
 using ps_rent_bot.DataBase.Users;
@@ -16,6 +17,9 @@ namespace ps_rent_bot
             using (Db = new ApplicationContext())
             {
 
+                Account account = new Account { AccountType = Enums.AccountTypeEnum.PS, Email = "SaS@gmail.huy", DateAdded = DateTime.Now, Games = "Suspendit2d", Username = "baza", IsRented = false, Password = "213112dqd", IsPsPlus = false };
+                Db.Accounts.Add(account);
+                Db.SaveChanges();
 
                 TelegramBot telegramBot = new TelegramBot();
                 telegramBot.PathToTockenFile = @"BotInfo\tocken.txt";
@@ -27,50 +31,7 @@ namespace ps_rent_bot
                 telegramBot.BotUsername = "ps_rent_bot";
                 telegramBot.button = new BotButton();
                 telegramBot.StartBot();
-            }
-
-            //PsAccount psAccount = new PsAccount { Email = "test", Password = "1111", Username = "testname" };
-            //using (Db = new ApplicationContext())
-            //{
-            //    Db.Database.EnsureDeleted();
-            //    Db.Database.EnsureCreated();
-            //    Db.Users.Add(new User { Name = "test", UserId = 1 });
-            //    Db.Users.Add(new User { Name = "test2", UserId = 2 });
-            //    Db.psAccounts.Add(psAccount);
-            //    Db.SaveChanges();
-            //    Console.WriteLine("cmplyt adding");
-
-            //    //System.Threading.Thread.Sleep(1000);
-
-            //    psAccount = Db.psAccounts.Find(1);
-            //    psAccount.Rent(Db.Users.FirstOrDefault());
-            //    psAccount.Rent(Db.Users.FirstOrDefault());
-            //    psAccount.Rent(Db.Users.FirstOrDefault());
-            //    psAccount.Rent(Db.Users.Find((long)2));
-            //    psAccount.Rent(Db.Users.FirstOrDefault());
-            //    Db.SaveChanges();
-            //    var orders = Db.Orders.Include(u => u.User).ToList();
-            //    foreach (var item in orders)
-            //    {
-            //        Console.WriteLine(item.Id+""+item.User.Name);
-            //    }
-            //    Console.WriteLine("//////////////////////////////////////////////////////////////");
-            //    orders = Db.Users.FirstOrDefault().GetOrders();
-            //    foreach (var item in orders)
-            //    {
-            //        Console.WriteLine(item.Id + "" + item.User.Name);
-            //    }
-            //}
-            //try
-            //{
-            //    throw new Exception();
-            //}
-            //catch (Exception exc)
-            //{
-            //    Console.Error.WriteLine(exc.ToString());
-            //}
-           
-
+            }        
         }
 
     }

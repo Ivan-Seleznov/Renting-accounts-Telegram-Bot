@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ps_rent_bot.DataBase.Orders
 {
-    class Order : IOrder
+    public class Order
     {
         public int Id { get; set; }
         public Account Account { get; set; }

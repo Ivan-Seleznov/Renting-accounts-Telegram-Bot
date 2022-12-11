@@ -65,7 +65,7 @@ namespace ps_rent_bot
             }
         }
 
-        private void Client_OnCallbackQuery(object? sender, CallbackQueryEventArgs e)
+        private async void Client_OnCallbackQuery(object? sender, CallbackQueryEventArgs e)
         {
             var callback = e.CallbackQuery;
             if (callback != null)
@@ -82,14 +82,69 @@ namespace ps_rent_bot
                         case "reviews":
                             client.AnswerCallbackQueryAsync(callback.Id, "Недоступно");
                             break;
+                        case "7days":
+                            await client.SendTextMessageAsync(callback.From.Id, "Тест");
+                            client.EditMessageTextAsync(callback.From.Id, callback.Message.MessageId, "12");
+
+                            break;
                         default:
                             break;
                     }
+                    try
+                    {
+                        if (callback.Data.StartsWith("7days"))
+                        {
+                            CheckOut(7, "none", callback);
+
+                        }
+                        if (callback.Data.StartsWith("14days"))
+                        {
+                            CheckOut(14, "none", callback);
+                        }
+                        if (callback.Data.StartsWith("21days"))
+                        {
+                            CheckOut(21, "none", callback);
+                        }
+                        if (callback.Data.StartsWith("30days"))
+                        {
+                            CheckOut(30, "none", callback);
+
+                        }
+                        if (callback.Data.StartsWith("60days"))
+                        {
+                            CheckOut(60, "none", callback);
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        client.EditMessageTextAsync(callback.From.Id, callback.Message.MessageId, "Ошибка аренды аккаунта.");
+                    }
                 }
+
 
             }
         }
-        
+        public void CheckOut(int days, string Paylink,Telegram.Bot.Types.CallbackQuery callback)
+        {
+            try
+            {
+                string paylink = "none";
+                try { client.EditMessageTextAsync(callback.From.Id, callback.Message.MessageId, callback.Message.Text + $"\nКоличество дней: {days}\nСсылка на оплату: {paylink}").Wait(); } catch { Console.WriteLine("Ошибка отправки сообщения"); return; }
+                ps_rent_bot.DataBase.Accounts.Account account = Program.Db.Accounts.Find(Convert.ToInt32(callback.Data.Replace(days + "days", "")));
+                if (!account.IsRented)
+                {
+                    account.Rent(Program.Db.Users.Find(callback.From.Id), days);
+                    SendMessageToId($"Аккаунт #{account.Id} арендован. Данные об аккаунте\nЛогин: {account.Email}\nПароль: {account.Password}\nПриятной игры В СУСПЕНДИТ", callback.From.Id, "https://imgur.com/a/bEvwkOy");
+                }
+                else
+                {
+                    SendMessageToId("Данный аккаунт уже арендован.", callback.From.Id);
+                }
+            }
+            catch (Exception ex) { LogInConsole.PrintException($"Ошибка оформления заказа. {ex.Message}"); }
+
+        }
         private void OnMessageHandler(object? sender, MessageEventArgs e)
         {
 
@@ -100,63 +155,74 @@ namespace ps_rent_bot
                 {
                     Console.WriteLine($"Сообщение: {message.Text} от {message?.From.Username} | {message?.From.FirstName}");
                 }
-                if (!WaitingForInput)
+                if (message.Text != null)
                 {
-                    switch (e.Message.Text)
+
+                    if (!WaitingForInput)
                     {
-                        default:
-                            SendMessageToId(HelloMessage, message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id));
+                        switch (e.Message.Text)
+                        {
+                            default:
+                                ps_rent_bot.DataBase.Accounts.Account account = ps_rent_bot.DataBase.AccountManager.FindAccount(message.Text);
+                                if (account == null)
+                                {
+                                    SendMessageToId("К сожалению у нас нет аккаунта с такой игрой в данный момент ((. В будующем это поправим, НО У ГНАС ЕСТЬ САСПЕНДИТ. КУПИТЕ ЕГО!", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id));
+                                }
+                                else
+                                {
+                                    SendMessageToId($"Аккаунт с {message.Text} найден. Также на нём присутствуют: {account.Games}", message.Chat.Id, replyMarkup: button.GetCallBackRentButtons(account.Id));
+                                }
+                                break;
+                            case "Генерал":
+                                SendMessageToId("Какой", message.Chat.Id);
+                                WaitingForInput = true;
 
-                            break;
-                        case "Генерал":
-                            //client.SendTextMessageAsync(message.Chat.Id, "Какой?", replyMarkup: button.GetQuestionButtons(message.Chat.Id));
-                            SendMessageToId("Какой",message.Chat.Id,replyMarkup: button.GetQuestionButtons(message.Chat.Id));
-                            WaitingForInput = true;
+                                break;
+                            case "О боте":
+                                SendMessageToId(BotDescription, message.Chat.Id, replyMarkup: button.GetCallBackButtons());
+                                break;
+                            case "Мои заказы":
+                                SendMessageToId(DataBase.Orders.OrderManager.GetAllOrdersInMessage(message.Chat.Id), message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id), AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним");
+                                break;
+                            case "/start":
+                                SendMessageToId(HelloMessage, message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id), AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним", photoUrl: "https://media.discordapp.net/attachments/566347121364828160/1032748768254251088/unknown.png");
+                                break;
+                            case "ЧТОБЫ СДЕСЬ КОММУНИСТОУ НЕ БЫЛО БЛЯТЬ":
+                                SendMessageToId("",message.Chat.Id, "https://media.discordapp.net/attachments/566347121364828160/1032749017572048998/unknown.png");
+                                break;
 
-                            break;
-                        case "О боте":
-                            //try { client.SendTextMessageAsync(message.Chat.Id, BotDescription, replyMarkup: button.GetCallBackButtons()); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
-                            SendMessageToId(BotDescription, message.Chat.Id, replyMarkup: button.GetCallBackButtons());
-                            break;
-                        case "Мои заказы":
-                            //try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
-                            SendMessageToId("Недоступно", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id), AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним");
-                            break;
-                        case "Арендовать":
-                            //Program.Db.psAccounts.Find(1).Rent(Program.Db.Find(1));
-                            //try { client.SendTextMessageAsync(message.Chat.Id, "Недоступно", replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
-                            SendMessageToId("Недоступно", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id), AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним");
-
-                            break;
-                        case "/start":
-                            SendMessageToId(HelloMessage, message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id) ,AddToDb: true, UserName: message.From.FirstName ?? message.From.Username ?? "Аноним");
-
-                            //try { client.SendTextMessageAsync(message.Chat.Id, HelloMessage, replyMarkup: button.GetBaseButtons(message.Chat.Id)); } catch (Exception ex) { Console.WriteLine("Ошибка отправки сообщения |" + ex.Message); }
-                            //Program.Db.Add(new User { UserId = message.Chat.Id, Name = message.From.FirstName ?? message.From.Username ?? "Аноним" });
-                            //Program.Db.SaveChanges();
-                            break;
-                    }
-                }
-                
-                else
-                {
-                    if (message.Text == "а) Анал" || message.Text == "Анал" || message.Text == "анал")
-                    {
-                        SendMessageToId("Правильно", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id));
-
+                        }
                     }
                     else
                     {
-                        SendMessageToId("Такого генерала не существует. Правильный ответ: Генерал Анал", message.Chat.Id, replyMarkup: button.GetBaseButtons(message.Chat.Id));
-
-                        //client.SendTextMessageAsync(message.Chat.Id, "Такого генерала не существует. Правильный ответ: Генерал Анал", replyMarkup: button.GetBaseButtons(message.Chat.Id));
-
+                        if (message.Text == "Анал")
+                        {
+                            SendMessageToId("Правильно. Скидка на все товары - 5%", message.Chat.Id);
+                        }
+                        else
+                        {
+                            SendMessageToId("Не правильно", message.Chat.Id);
+                        }
+                        WaitingForInput=false;
                     }
-                    WaitingForInput = false;
                 }
-            }
-        }
+                else
+                {
+                    SendMessageToId("Ты мне какую-то дич отправил. Отправь название игры", message.Chat.Id);
+                }
 
+
+
+
+
+
+
+
+
+            }
+    }
+
+       
         private bool Inizialize()
         {
             Console.ForegroundColor = ConsoleColor.DarkBlue;
@@ -342,18 +408,40 @@ namespace ps_rent_bot
                         Console.Write("Введите новое описание: ");
                         BotDescription = Console.ReadLine();
                         break;
-                    case "/Inizialize":
+                    case "/inizialize":
                         Console.WriteLine("");
                         if (!Inizialize())
                         {
                             return;
                         }
                         break;
+                    case "/chAc":                                           
+                        try {
+                            Console.WriteLine("Введите id аккаунта");
+                            int acId = Convert.ToInt32(Console.ReadLine());
+                            Console.WriteLine("Поиск аккаунта в бд");
+                            ps_rent_bot.DataBase.Accounts.Account account = Program.Db.Accounts.Find(acId);
+                            if (account != null)
+                            {
+                                Console.WriteLine("Аккаунт найден.");
+                                account.IsRented = false;
+                                Program.Db.Accounts.Update(account);
+                                Console.WriteLine("Снят с аренды");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Аккаунт не найден");
+                            }
+                        }
+                        catch (Exception exc4) { Console.WriteLine("Ошибка: " + exc4.Message); }                       
+                        break;
                     case "/help":
                         Console.WriteLine("sendMessage - отправить текстовое сообщение всем пользователям");
                         Console.WriteLine("/changeDescriptionFile -  Изменить путь к файлу где находится описание бота");
                         Console.WriteLine("/changeDescription -  изменить описание бота");
-                        Console.WriteLine("/Inizialize - заново инициализировать значения");
+                        Console.WriteLine("/inizialize - заново инициализировать значения");
+                        Console.WriteLine("/chAc - сменить статус аккаунта на IsRented = False");
+                       
 
                         break;
                     case "exit":
@@ -391,6 +479,7 @@ namespace ps_rent_bot
             }
             catch (Telegram.Bot.Exceptions.ApiRequestException) 
             {
+               
                 RemoveUser(chatId);
                 return false;
             }
@@ -433,4 +522,5 @@ namespace ps_rent_bot
 
     }
 }
+
 

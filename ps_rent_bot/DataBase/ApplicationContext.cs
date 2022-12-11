@@ -15,8 +15,7 @@ namespace ps_rent_bot.DataBase
         public DbSet<Users.User> Users { get; set; }
         public DbSet<Orders.Order> Orders { get; set; }
         public ApplicationContext()
-        {   
-            //Database.EnsureDeleted();
+        { 
             Database.EnsureCreated();
             
         }

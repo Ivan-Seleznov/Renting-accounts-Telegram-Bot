@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ps_rent_bot.Enums
 {
-    enum AccountTypeEnum
+    public enum AccountTypeEnum
     {
         PS,
         Steam
